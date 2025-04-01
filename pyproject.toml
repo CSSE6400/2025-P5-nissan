@@ -1,18 +1,21 @@
 [tool.poetry]
-name = "todo"
+name = "taskoverflow"
 version = "0.1.0"
-description = ""
-authors = ["Brae Webb", "Evan Hughes"]
-readme = "README.md"
+description = "TaskOverflow Application"
+authors = ["Your Name <your.email@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-flask = "^3.0.2"
-flask-sqlalchemy = "^3.1.1"
-psycopg2 = "^2.9.9"
-gunicorn = "*"
+python = "^3.9"
+flask = "*"
+sqlalchemy = "*"
+psycopg2-binary = "*"
+python-dotenv = "*"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "*"
+black = "*"
+flake8 = "*"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

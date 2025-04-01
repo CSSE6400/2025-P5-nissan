@@ -1,27 +1,43 @@
-FROM ubuntu:22.04
+FROM python:3.9-slim
 
-ENV SQLALCHEMY_DATABASE_URI=sqlite:///:memory:
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Installing dependencies and cleaning up
-RUN apt-get update && \
-        apt-get install -y python3 python3-pip postgresql-client libpq-dev libcurl4-openssl-dev libssl-dev && \
-        apt-get clean && \
-        rm -rf /var/lib/apt/lists/*
-		
-# Install pipenv
-RUN pip3 install poetry
-
-# Setting the working directory
+# Set working directory
 WORKDIR /app
 
-# Install pipenv dependencies
-COPY pyproject.toml .
-RUN poetry install --no-root
+# Install system dependencies
+RUN set -ex \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        libpq-dev \
+        postgresql-client \
+        python3-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/*
 
-# Copying our application into the container
+# Install poetry
+RUN pip install --no-cache-dir poetry
+
+# Copy poetry files
+COPY pyproject.toml poetry.lock* ./
+
+# Install dependencies
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi --no-root
+
+# Copy application code
 COPY bin bin
 COPY todo todo
 
-# Running our application
+# Expose port
+EXPOSE 6400
+
+# Run the application
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
 CMD ["serve"]
